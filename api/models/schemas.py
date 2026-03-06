@@ -24,7 +24,6 @@ class Resources(BaseModel):
             raise ValueError("Memory limit should be power of 2.")
         return value
 
-
 class Behavior(BaseModel):
     seed: Optional[int] = None
     timeout_seconds: int = 30
@@ -39,14 +38,25 @@ class Observability(BaseModel):
     metrics_enabled: bool = False
     webhook_url: Optional[HttpUrl] = None
 
-class Simulation(BaseModel):
+class SimulationModel(BaseModel):
     schema_version: str = "v1"
     uuid: UUID4
     name: str
     label: Optional[str] = None
     priority: int =  Field(default=5, ge=1, le=15)
+    status: Literal['QUEUED', 'IN PROCESS', 'DONE']
     runtime: Runtime
     resources: Resources
     behavior: Behavior
     storage: Storage
     observability: Observability
+
+class SimulationResponse(BaseModel):
+    uuid: UUID4
+    schema_version: str
+    name: str
+    label: Optional[str]
+    priority: int
+    status: str
+
+    model_config = {"from_attributes": True}

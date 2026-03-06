@@ -19,6 +19,7 @@ These are the components:
 - **uuid**: A uuid4 string generated from client side.
 - **name**: A simple name for this simulation.
 - **label (optional)**: A word drescribing what is this simulation, could be experiment1.1 or something meaningful for the dev.
+- **status**: QUEUED, IN PROCESS or DONE. the dev must set this value to QUEUED while sending a simulation for the first time.
 - **priority**: If you are running a lot of simulations, which image should run first?
 - **runtime.runs_per_container**: How many runs or iterations should a container run inside?
 - **runtime.image_name**: What is the image that you build and want to run?
@@ -38,4 +39,67 @@ These are the components:
 - **observability.metrics_enabled**: To collect how many resources each run usage.
 - **observability.webhook_url (optional)**: If tou need for some reason a notification when the sim is finished.
 
-The above is passed to the `/api/simulation` endpoint as a POST request.
+The above is passed to the `/api/simulations` endpoint as a POST request.
+
+### Requests
+Valid contract:
+```
+curl -X POST http://localhost:8000/api/simulation \
+  -H "Content-Type: application/json" \
+  -d '{
+    "uuid": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "test-sim",
+    "priority": 5,
+    "runtime": {
+      "runs_per_container": 1,
+      "image_name": "my-ai-image",
+      "image_tag": "latest"
+    },
+    "resources": {
+      "memory_limit": 512,
+      "max_containers": 1,
+      "max_duration_seconds": 60
+    },
+    "behavior": {
+      "max_attempts": 1
+    },
+    "storage": {
+      "volume_name": "sim-vol",
+      "output_path": "/output"
+    },
+    "observability": {
+      "log_level": "INFO"
+    }
+  }'
+  ```
+
+Invalid contract:
+```
+curl -X POST http://localhost:8000/api/simulations \
+  -H "Content-Type: application/json" \
+  -d '{
+    "uuid": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "test-sim",
+    "priority": 5,
+    "runtime": {
+      "runs_per_container": 1,
+      "image_name": "my-ai-image",
+      "image_tag": "latest"
+    },
+    "resources": {
+      "memory_limit": 512,
+      "max_containers": 1,
+      "max_duration_seconds": 60
+    },
+    "behavior": {
+      "max_attempts": 1
+    },
+    "storage": {
+      "volume_name": "sim-vol",
+      "output_path": "/output"
+    },
+    "observability": {
+      "log_level": "INFO"
+    }
+  }'
+  ```
