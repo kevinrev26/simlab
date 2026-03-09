@@ -7,8 +7,11 @@ from .database.connection import get_db_session, get_engine
 from .database.operations import create_simulation, get_simulation_by_uuid
 from .models.schemas import SimulationModel, SimulationResponse
 from .models.models import Base
+from .queue.dispatch import Dispatch
 
 load_dotenv()
+
+dispatcher = Dispatch()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -31,6 +34,7 @@ async def post_simulation(sim: SimulationModel, db_session: Annotated[AsyncSessi
         db_session,
         sim
     )
+    dispatcher.dispatch_event({'uuid': sim_uuid, 'name': sim.name})
     return {'simulation_uuid': sim_uuid, 'status': 'queued'}
 
 @app.get("/api/simulations/{uuid}", response_model=SimulationResponse)

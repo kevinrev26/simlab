@@ -11,9 +11,9 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY api api
+COPY worker worker
 
 COPY simlab-events/ /shared/
 RUN pip install /shared/
 
-CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000", "--access-log"]
+CMD ["python", "-m", "worker.main"]
